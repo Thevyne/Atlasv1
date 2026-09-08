@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Processing drawing</title>
+  <meta http-equiv="refresh" content="3">
+</head>
+<body>
+  <h1>Processing drawing #{{ drawing.pk }}</h1>
+  <p>Status: {{ drawing.get_status_display }}</p>
+  {% if drawing.status == "failed" %}
+    <p style="color:red;">Something went wrong: {{ drawing.error_message }}</p>
+  {% else %}
+    <p>This page refreshes automatically every few seconds.</p>
+  {% endif %}
+</body>
+</html>

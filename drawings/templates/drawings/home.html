@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATLAS - Home</title>
+    <style>
+        :root {
+            --bg-color: #0c111d;
+            --card-bg: #111827;
+            --accent-cyan: #00ffff;
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+            --border-color: #1f2937;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Inter, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Header Style */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 4rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: var(--text-main);
+        }
+
+        .logo span {
+            color: var(--accent-cyan);
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-family: monospace;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #10b981;
+        }
+
+        /* Hero / Main Section */
+        main {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin-bottom: 3.5rem;
+            line-height: 1.6;
+        }
+
+        /* Navigation Cards Matrix */
+        .navigation-grid {
+            display: flex;
+            gap: 2rem;
+            width: 100%;
+            max-width: 900px;
+            justify-content: center;
+        }
+
+        .nav-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            text-decoration: none;
+            color: var(--text-main);
+            text-align: left;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0, 255, 255, 0.05);
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent-cyan);
+            display: inline-block;
+        }
+
+        .nav-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .nav-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .arrow-link {
+            margin-top: 1.5rem;
+            display: flex;
+            align-items: center;
+            color: var(--accent-cyan);
+            font-size: 0.9rem;
+            font-weight: 600;
+            gap: 0.5rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #4b5563;
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">ATLAS<span> // V1</span></div>
+        <div class="system-status">
+            <div class="status-dot"></div>
+            ENGINE ONLINE
+        </div>
+    </header>
+
+    <main>
+        <h1>Your AI Electrical Engineering Assistant</h1>
+        <p class="subtitle">
+            Generate industry-standard deliverables including layout designs, load schedules, and single-line diagrams in minutes.
+        </p>
+
+        <div class="navigation-grid">
+            <a href="{% url 'drawings:upload' %}" class="nav-card">
+                <div class="card-icon">📐</div>
+                <h3>Ingestion Hub</h3>
+                <p>Upload native vector CAD blueprints to process circuit layouts, load calculations, and diagram designs instantly.</p>
+                <div class="arrow-link">Open Ingestion Hub &rarr;</div>
+            </a>
+
+            <a href="{% url 'drawings:chat' %}" class="nav-card">
+                <div class="card-icon">⚡</div>
+                <h3>ATLAS Copilot</h3>
+                <p>Chat directly with your engineering helper to query compliance regulations, optimize panel parameters, or handle design queries.</p>
+                <div class="arrow-link">Open Copilot Chat &rarr;</div>
+            </a>
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2026 ATLAS Automation Systems. All Rights Reserved.
+    </footer>
+
+</body>
+</html>

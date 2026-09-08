@@ -1,0 +1,9 @@
+Django>=4.2,<5.0
+celery>=5.3
+redis>=5.0
+ezdxf>=1.1
+shapely>=2.0
+matplotlib>=3.8
+anthropic>=0.40  # optional -- only needed if ENABLE_AI_ROOM_CLASSIFICATION is True
+reportlab>=4.0
+anthropic>=0.40

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATLAS - Ingestion Hub</title>
+    <style>
+        :root {
+            --bg-color: #0c111d;
+            --card-bg: #111827;
+            --accent-cyan: #00ffff;
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+            --border-color: #1f2937;
+            --success-green: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Inter, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Navigation Header Bar */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 4rem;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--accent-cyan);
+            position: relative;
+            transform: rotate(45deg);
+        }
+        .logo-icon::before {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-cyan);
+            top: 7px;
+            left: 7px;
+            border-radius: 50%;
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .logo-subtext {
+            font-size: 0.7rem;
+            color: #38bdf8;
+            text-transform: uppercase;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-left: 0.5rem;
+        }
+
+        nav {
+            display: flex;
+            gap: 2.5rem;
+            align-items: center;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: color 0.2s;
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--text-main);
+        }
+
+        .login-btn {
+            border: 1.5px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 0.4rem 1.2rem;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .system-meta {
+            font-family: monospace;
+            font-size: 0.75rem;
+            text-align: right;
+            line-height: 1.4;
+            color: var(--text-muted);
+        }
+        .meta-online { color: var(--success-green); }
+        .meta-loaded { color: #38bdf8; }
+
+        /* Main Display Layout Area */
+        main {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.5px;
+        }
+
+        .hero-desc {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            max-width: 750px;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        /* Form Container Styled as Ingestion Hub Box */
+        .ingestion-container {
+            width: 100%;
+            max-width: 750px;
+            background-color: #0e1622;
+            border: 1.5px dashed var(--accent-cyan);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .ingestion-header {
+            background-color: #00e5e5;
+            color: #000000;
+            padding: 0.5rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .upload-form-body {
+            padding: 2.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        /* Stylized Blueprint SVG Graphic Icon */
+        .blueprint-icon {
+            width: 70px;
+            height: 55px;
+            border: 2px solid var(--text-muted);
+            border-radius: 4px;
+            position: relative;
+            margin-bottom: 1.2rem;
+        }
+        .blueprint-icon::before {
+            content: '+';
+            position: absolute;
+            bottom: -8px;
+            right: -8px;
+            width: 22px;
+            height: 22px;
+            background-color: var(--accent-cyan);
+            color: #000;
+            border-radius: 50%;
+            font-weight: 900;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Hiding Django's raw native default file element look layout, overlapping custom action trigger click zone text */
+        .django-file-wrapper {
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        .django-file-wrapper p {
+            display: inline-block;
+        }
+        .django-file-wrapper input[type="file"] {
+            color: var(--accent-cyan);
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            padding: 0.4rem;
+            border-radius: 6px;
+            margin-left: 0.5rem;
+            cursor: pointer;
+        }
+
+        .upload-submit-btn {
+            background-color: transparent;
+            border: none;
+            color: #38bdf8;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-top: 0.25rem;
+            transition: color 0.2s;
+        }
+        .upload-submit-btn:hover {
+            color: var(--accent-cyan);
+        }
+
+        .system-limitation {
+            font-size: 0.72rem;
+            color: #6b7280;
+            margin-top: 1.5rem;
+        }
+
+        /* Automated Sequence Pipeline Trace Bar */
+        .pipeline-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            max-width: 950px;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .pipe-step {
+            border: 1px solid #1a2e3b;
+            color: #38bdf8;
+            padding: 0.35rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            background: rgba(12, 17, 29, 0.6);
+        }
+
+        .pipe-arrow {
+            color: #1a2e3b;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* Bottom Live Tracking Deliverables Console Table Frame */
+        .console-section {
+            width: 100%;
+            max-width: 950px;
+            text-align: left;
+        }
+
+        .console-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-main);
+        }
+        .console-title span {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.9rem;
+        }
+
+        .data-table-container {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: rgba(17, 24, 39, 0.4);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th {
+            background-color: rgba(17, 24, 39, 0.8);
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            text-transform: capitalize;
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(31, 41, 55, 0.5);
+            color: var(--text-muted);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .td-filename {
+            color: #d1d5db;
+        }
+
+        .status-tag {
+            font-weight: bold;
+            font-family: monospace;
+        }
+        .status-tag.completed { color: var(--success-green); }
+        .status-tag.pending { color: #f59e0b; }
+
+        .system-tag {
+            color: #d1d5db;
+            font-weight: 500;
+        }
+
+        .action-link {
+            color: #38bdf8;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .action-link:hover {
+            text-decoration: underline;
+            color: var(--accent-cyan);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon"></div>
+            <div class="logo-text">ATLAS</div>
+            <div class="logo-subtext">Electrical Engineering Design<br>Deliverable Producer</div>
+        </div>
+        <nav>
+            <a href="{% url 'drawings:home' %}">HOME</a>
+            <a href="#" class="active">DASHBOARD</a>
+            <a href="#">DOCUMENTATION</a>
+            <a href="#" class="login-btn">LOGIN</a>
+        </nav>
+        <div class="system-meta">
+            Computational Engine: <span class="meta-online">ONLINE</span><br>
+            Compliance Database: <span class="meta-loaded">EN 12464-1 Loaded</span>
+        </div>
+    </header>
+
+    <main>
+        <h1>Generate Complete Electrical Engineering Design Deliverables.</h1>
+        <p class="hero-desc">
+            Execute native vector CAD automation, create precise circuiting schedules, generate comprehensive single-line diagrams, and produce all necessary design documentation.
+        </p>
+
+        <div class="ingestion-container">
+            <div class="ingestion-header">Ingestion Hub</div>
+            
+            <form method="post" enctype="multipart/form-data" class="upload-form-body">
+                {% csrf_token %}
+                
+                <div class="blueprint-icon"></div>
+                
+                <div class="django-file-wrapper">
+                    {{ form.as_p }}
+                </div>
+
+                <button type="submit" class="upload-submit-btn">
+                    Start with native CAD geometry to generate circuiting, diagramming, and calculations.
+                </button>
+
+                <div class="system-limitation">
+                    Accepted inputs: Native DXF vector CAD and standardized circuit schemas (R2010+).
+                </div>
+            </form>
+        </div>
+
+        <div class="pipeline-flow">
+            <div class="pipe-step">[ 1. Circuit Schema Ingestion ]</div>
+            <div class="pipe-arrow">&longrightarrow;</div>
+            <div class="pipe-step">[ 2. Load Allocation & Calculation ]</div>
+            <div class="pipe-arrow">&longrightarrow;</div>
+            <div class="pipe-step">[ 3. Panel Schedule Generation ]</div>
+            <div class="pipe-arrow">&longrightarrow;</div>
+            <div class="pipe-step">[ 4. Single-Line Diagram Plotting ]</div>
+            <div class="pipe-arrow">&longrightarrow;</div>
+            <div class="pipe-step">[ 5. Production (DXF/PDF) ]</div>
+        </div>
+
+        <div class="console-section">
+            <div class="console-title">Active Project Data <span>(Recent Deliverables)</span></div>
+            <div class="data-table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">Project Delta / Drawing Filename</th>
+                            <th style="width: 15%;">Status</th>
+                            <th style="width: 20%;">Target Layer / System</th>
+                            <th style="width: 25%;">Output Deliverable</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if project %}
+                        <tr>
+                            <td class="td-filename">{{ project.name }}</td>
+                            <td>
+                                <span class="status-tag {% if project.status == 'Completed' %}completed{% else %}pending{% endif %}">
+                                    [ {{ project.status|upper }} ]
+                                </span>
+                            </td>
+                            <td class="system-tag">LIGHTING & POWER</td>
+                            <td>
+                                {% if project.output_file_path %}
+                                <a href="#" class="action-link">[ Download Panel Schedule ]</a>
+                                {% else %}
+                                <span style="color: #4b5563;">[ Processing Data Matrix ]</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td class="td-filename">Lighting_design_for_4_bedroom.dxf</td>
+                            <td><span class="status-tag completed">[ COMPLETED ]</span></td>
+                            <td class="system-tag">LIGHTING & POWER</td>
+                            <td><a href="#" class="action-link">[ Download Panel Schedule ]</a></td>
+                        </tr>
+                        <tr>
+                            <td class="td-filename">Commercial_Office_Block_H_v2.dxf</td>
+                            <td><span class="status-tag completed">[ COMPLETED ]</span></td>
+                            <td class="system-tag">SINGLE-LINE DIAGRAM</td>
+                            <td><a href="#" class="action-link">[ Download .DXF Diagram ]</a></td>
+                        </tr>
+                        <tr>
+                            <td class="td-filename">Lobby_Area_Renovation.dxf</td>
+                            <td><span class="status-tag pending">[ PENDING REVIEW ]</span></td>
+                            <td class="system-tag">POWER SYSTEM</td>
+                            <td><a href="{% url 'drawings:chat' %}" class="action-link">[ View Calculation Matrix ]</a></td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

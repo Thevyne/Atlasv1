@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Design Complete</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+         background:#0f1117; color:#e1e4e8; margin:0; padding:32px; }
+  h1 { font-size:22px; margin-bottom:6px; }
+  .sub { color:#8b949e; font-size:13px; margin-bottom:32px; }
+  .cards { display:flex; flex-wrap:wrap; gap:16px; margin-bottom:32px; }
+  .card {
+    background:#161b22; border:1px solid #30363d; border-radius:12px;
+    padding:20px 24px; min-width:200px; flex:1;
+  }
+  .card-icon { font-size:28px; margin-bottom:8px; }
+  .card-title { font-size:13px; color:#8b949e; margin-bottom:6px; }
+  .card a {
+    display:inline-block; background:#1f6feb; color:#fff; border-radius:8px;
+    padding:8px 16px; font-size:13px; text-decoration:none; font-weight:500;
+    margin-top:8px; transition:background .15s;
+  }
+  .card a:hover { background:#388bfd; }
+  .card a.secondary { background:#21262d; border:1px solid #30363d; color:#e1e4e8; }
+  .card a.secondary:hover { background:#30363d; }
+  .chat-btn {
+    display:flex; align-items:center; gap:12px;
+    background:linear-gradient(135deg,#1a2640,#1f3347);
+    border:1px solid #1f6feb44; border-radius:12px;
+    padding:18px 24px; text-decoration:none; color:#e1e4e8;
+    transition:border-color .15s; margin-bottom:24px;
+  }
+  .chat-btn:hover { border-color:#1f6feb; }
+  .chat-icon { font-size:32px; }
+  .chat-text h3 { font-size:15px; margin-bottom:3px; }
+  .chat-text p  { font-size:13px; color:#8b949e; margin:0; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th,td { padding:8px 12px; border:1px solid #30363d; text-align:left; }
+  th { background:#161b22; color:#8b949e; font-weight:500; }
+  tr:nth-child(even) td { background:#0d1117; }
+  .phase-R { color:#f85149; }
+  .phase-Y { color:#e3b341; }
+  .phase-B { color:#58a6ff; }
+</style>
+</head>
+<body>
+<h1>⚡ Drawing #{{ drawing.pk }} — design complete</h1>
+<div class="sub">All deliverables are ready for download.</div>
+
+<a class="chat-btn" href="{% url 'drawings:atlas' drawing.pk %}" style="background:linear-gradient(135deg,#1a2640,#2d1a10);border-color:#f0883e44;">
+  <div class="chat-icon">⚡</div>
+  <div class="chat-text">
+    <h3>Open ATLAS — Interactive Design Engineer</h3>
+    <p>Modify fixture counts, change lux levels, ask questions — live preview updates instantly</p>
+  </div>
+</a>
+<a class="chat-btn" href="{% url 'drawings:chat_drawing' drawing.pk %}">
+  <div class="chat-icon">💬</div>
+  <div class="chat-text">
+    <h3>Ask the AI Electrical Engineer</h3>
+    <p>Discuss your design, get calculations explained, ask BS7671 questions</p>
+  </div>
+</a>
+
+<div class="cards">
+  {% if drawing.output_file %}
+  <div class="card">
+    <div class="card-icon">📐</div>
+    <div class="card-title">Full Design DXF</div>
+    Lighting, sockets, switches &amp; DB on separate layers. Open in AutoCAD.
+    <a href="{{ drawing.output_file.url }}">Download DXF</a>
+  </div>
+  {% endif %}
+  {% if db_obj and db_obj.sld_file %}
+  <div class="card">
+    <div class="card-icon">📊</div>
+    <div class="card-title">Single Line Diagram</div>
+    Phase-coloured SLD with busbar, MCBs, and all circuit loads.
+    <a href="{{ db_obj.sld_file.url }}">Download SLD DXF</a>
+  </div>
+  {% endif %}
+  {% if db_obj and db_obj.report_file %}
+  <div class="card">
+    <div class="card-icon">📋</div>
+    <div class="card-title">Design Report PDF</div>
+    Full calculations, fixture schedule, DB schedule &amp; cable sizing.
+    <a href="{{ db_obj.report_file.url }}">Download Report</a>
+  </div>
+  {% endif %}
+</div>
+
+{% if db_obj %}
+<h2 style="font-size:17px;margin-bottom:16px">Distribution Board Summary</h2>
+<table style="max-width:700px;margin-bottom:28px">
+  <tr><th>Label</th><th>Position</th><th>Incomer MCB</th><th>Incoming cable</th></tr>
+  <tr>
+    <td>{{ db_obj.label }}</td>
+    <td>({{ db_obj.x|floatformat:2 }} m, {{ db_obj.y|floatformat:2 }} m)</td>
+    <td>{{ db_obj.incomer_mcb_a }} A</td>
+    <td>{{ db_obj.incoming_cable_csa_mm2 }} mm²</td>
+  </tr>
+</table>
+
+{% if db_obj.schedule_data %}
+<h2 style="font-size:17px;margin-bottom:16px">DB Schedule</h2>
+<table>
+  <tr>
+    <th>Circuit</th><th>Description</th><th>Pts</th>
+    <th>Load/pt (W)</th><th>Phase load (W)</th>
+    <th>Phase</th><th>I (A)</th><th>I+25% (A)</th>
+    <th>MCB (A)</th><th>Cable (mm²)</th>
+  </tr>
+  {% for cct in db_obj.schedule_data.circuits %}
+  <tr>
+    <td>{{ cct.cct_label }}</td>
+    <td>{{ cct.description }}</td>
+    <td>{{ cct.n_points }}</td>
+    <td>{{ cct.load_per_point_w }}</td>
+    <td>{{ cct.connected_load_r|floatformat:0 }}R /
+        {{ cct.connected_load_y|floatformat:0 }}Y /
+        {{ cct.connected_load_b|floatformat:0 }}B</td>
+    <td class="phase-{{ cct.phase }}"><b>{{ cct.phase }}</b></td>
+    <td>{{ cct.full_load_a }}</td>
+    <td>{{ cct.design_current_a }}</td>
+    <td>{{ cct.mcb_rating_a }}</td>
+    <td>{{ cct.cable_csa_mm2 }}</td>
+  </tr>
+  {% endfor %}
+  <tr style="font-weight:600;background:#161b22">
+    <td colspan="2">TOTALS</td>
+    <td colspan="3">Total: {{ db_obj.schedule_data.total_w }} W</td>
+    <td colspan="2">{{ db_obj.schedule_data.full_load_a }} A</td>
+    <td>{{ db_obj.schedule_data.design_a }} A</td>
+    <td>{{ db_obj.schedule_data.incomer_mcb_a }} A</td>
+    <td>{{ db_obj.schedule_data.incoming_cable_csa_mm2 }} mm²</td>
+  </tr>
+</table>
+{% endif %}
+{% endif %}
+
+<div style="margin-top:28px">
+  <a href="{% url 'drawings:upload' %}"
+     style="color:#8b949e;font-size:13px;text-decoration:none">
+    ← Upload another drawing
+  </a>
+</div>
+</body>
+</html>

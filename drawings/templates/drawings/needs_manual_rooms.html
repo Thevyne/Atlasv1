@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATLAS - Spatial Attention Required</title>
+    <style>
+        :root {
+            --bg-color: #0c111d;
+            --card-bg: #111827;
+            --accent-cyan: #00ffff;
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+            --border-color: #1f2937;
+            --warning-orange: #f59e0b;
+            --success-green: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Inter, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Navigation Header Bar */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 4rem;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--accent-cyan);
+            position: relative;
+            transform: rotate(45deg);
+        }
+        .logo-icon::before {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-cyan);
+            top: 7px;
+            left: 7px;
+            border-radius: 50%;
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .logo-subtext {
+            font-size: 0.7rem;
+            color: #38bdf8;
+            text-transform: uppercase;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-left: 0.5rem;
+        }
+
+        nav {
+            display: flex;
+            gap: 2.5rem;
+            align-items: center;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: color 0.2s;
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--text-main);
+        }
+
+        .login-btn {
+            border: 1.5px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 0.4rem 1.2rem;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .system-meta {
+            font-family: monospace;
+            font-size: 0.75rem;
+            text-align: right;
+            line-height: 1.4;
+            color: var(--text-muted);
+        }
+        .meta-online { color: var(--success-green); }
+        .meta-loaded { color: #38bdf8; }
+
+        /* Main Alert Area */
+        main {
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            flex-grow: 1;
+            justify-content: center;
+        }
+
+        /* Attention Box Framework */
+        .attention-container {
+            width: 100%;
+            max-width: 700px;
+            background-color: #16120e;
+            border: 1.5px dashed var(--warning-orange);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.03);
+        }
+
+        .attention-header {
+            background-color: var(--warning-orange);
+            color: #000000;
+            padding: 0.6rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .attention-body {
+            padding: 3rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .warning-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--warning-orange);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -0.5px;
+            color: var(--text-main);
+        }
+
+        .error-terminal {
+            background-color: #090d16;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem 1.5rem;
+            font-family: 'Consolas', Monaco, monospace;
+            font-size: 0.9rem;
+            color: #f43f5e;
+            width: 100%;
+            text-align: left;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            border-left: 3px solid #f43f5e;
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            background-color: transparent;
+            border: 1.5px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 0.8rem 2rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 4px 12px rgba(0, 255, 255, 0.05);
+        }
+
+        .action-btn:hover {
+            background-color: var(--accent-cyan);
+            color: #000000;
+            box-shadow: 0 4px 20px rgba(0, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* Alternative Manual Instructions block */
+        .alternative-box {
+            width: 100%;
+            max-width: 700px;
+            background-color: rgba(17, 24, 39, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: left;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .alternative-box h3 {
+            color: var(--text-main);
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        code {
+            background-color: #1e293b;
+            color: var(--accent-cyan);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.88rem;
+        }
+
+        .alternative-box a {
+            color: #38bdf8;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .alternative-box a:hover {
+            text-decoration: underline;
+            color: var(--accent-cyan);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon"></div>
+            <div class="logo-text">ATLAS</div>
+            <div class="logo-subtext">Electrical Engineering Design<br>Deliverable Producer</div>
+        </div>
+        <nav>
+            <a href="{% url 'drawings:home' %}">HOME</a>
+            <a href="{% url 'drawings:upload' %}" class="active">DASHBOARD</a>
+            <a href="#">DOCUMENTATION</a>
+            <a href="#" class="login-btn">LOGIN</a>
+        </nav>
+        <div class="system-meta">
+            Computational Engine: <span class="meta-online">ONLINE</span><br>
+            Compliance Database: <span class="meta-loaded">EN 12464-1 Loaded</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="attention-container">
+            <div class="attention-header">Spatial Attention Required</div>
+            <div class="attention-body">
+                <div class="warning-icon">⚠️</div>
+                <h1>Drawing #{{ drawing.pk }} Needs Manual Room Boundaries</h1>
+                
+                <div class="error-terminal">
+                    $ System.Exception: {{ drawing.error_message }}
+                </div>
+
+                <a href="{% url 'drawings:trace_rooms' drawing.pk %}" class="action-btn">
+                    Trace Rooms in Browser
+                </a>
+            </div>
+        </div>
+
+        <div class="alternative-box">
+            <h3>Alternative CAD Workflow</h3>
+            <p>
+                Open the drawing inside your local AutoCAD or preferred desktop CAD package. Trace a closed 
+                polyline wrapper setup directly around the interior walls of each distinct room on a fresh layer explicitly named 
+                <code>ROOMS</code>. Save the updated layout configuration file, and re-upload the vector file from the 
+                <a href="{% url 'drawings:upload' %}">Upload Page</a> to compile schedules instantly.
+            </p>
+        </div>
+    </main>
+
+</body>
+</html>

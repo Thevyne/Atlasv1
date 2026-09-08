@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Trace rooms</title>
+  <style>
+    body { font-family: sans-serif; }
+    #canvas-scroll { max-width: 100%; overflow: auto; border: 1px solid #999; }
+    #canvas-wrap { position: relative; display: inline-block; }
+    #trace-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; }
+    #controls { margin: 12px 0; }
+    #controls input, #controls button { margin-right: 8px; }
+    #status { color: #b00; min-height: 1.2em; }
+    #room-list li { margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Trace rooms - drawing #{{ drawing.pk }}</h1>
+  <p>
+    Click to place points around a room's interior, then click "Close room"
+    once you've placed at least 3 points. Repeat for each room, then submit.
+  </p>
+
+  <form id="csrf-form" style="display:none">{% csrf_token %}</form>
+
+  <div id="controls">
+    <input type="text" id="room-label" placeholder="Room name (e.g. Office)">
+    <button type="button" onclick="closeRoom()">Close room</button>
+    <button type="button" onclick="undoPoint()">Undo last point</button>
+    <button type="button" onclick="removeLastRoom()">Remove last room</button>
+    <button type="button" onclick="submitRooms()">Submit traced rooms</button>
+  </div>
+  <p id="status"></p>
+
+  <div id="canvas-scroll">
+    <div id="canvas-wrap">
+      <img id="bg-image" src="{{ drawing.preview_image.url }}"
+           width="{{ drawing.preview_extents.width_px }}"
+           height="{{ drawing.preview_extents.height_px }}">
+      <canvas id="trace-canvas"
+              width="{{ drawing.preview_extents.width_px }}"
+              height="{{ drawing.preview_extents.height_px }}"></canvas>
+    </div>
+  </div>
+
+  <h3>Rooms traced so far</h3>
+  <ul id="room-list"></ul>
+
+  <script>
+    const canvas = document.getElementById("trace-canvas");
+    const ctx = canvas.getContext("2d");
+
+    const rooms = [];
+    let currentPoints = [];
+
+    canvas.addEventListener("click", (event) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      currentPoints.push([x, y]);
+      redraw();
+    });
+
+    function redraw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      rooms.forEach((room) => {
+        ctx.strokeStyle = "#1d9e75";
+        ctx.fillStyle = "rgba(29, 158, 117, 0.15)";
+        ctx.lineWidth = 2;
+        drawPolygon(room.points, true, room.label);
+      });
+
+      ctx.strokeStyle = "#d85a30";
+      ctx.fillStyle = "rgba(216, 90, 48, 0.15)";
+      ctx.lineWidth = 2;
+      drawPolygon(currentPoints, false, null);
+    }
+
+    function drawPolygon(points, closed, label) {
+      if (points.length === 0) return;
+
+      ctx.beginPath();
+      ctx.moveTo(points[0][0], points[0][1]);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i][0], points[i][1]);
+      }
+      if (closed) {
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.stroke();
+
+      points.forEach(([x, y]) => {
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      });
+
+      if (closed && label) {
+        const cx = points.reduce((sum, p) => sum + p[0], 0) / points.length;
+        const cy = points.reduce((sum, p) => sum + p[1], 0) / points.length;
+        ctx.fillStyle = "#000";
+        ctx.font = "14px sans-serif";
+        ctx.fillText(label, cx, cy);
+      }
+    }
+
+    function undoPoint() {
+      currentPoints.pop();
+      redraw();
+    }
+
+    function closeRoom() {
+      if (currentPoints.length < 3) {
+        setStatus("A room needs at least 3 points before closing.");
+        return;
+      }
+      const label = document.getElementById("room-label").value.trim();
+      rooms.push({ label: label, points: currentPoints });
+      currentPoints = [];
+      document.getElementById("room-label").value = "";
+      updateRoomList();
+      redraw();
+      setStatus("");
+    }
+
+    function removeLastRoom() {
+      rooms.pop();
+      updateRoomList();
+      redraw();
+    }
+
+    function updateRoomList() {
+      const list = document.getElementById("room-list");
+      list.innerHTML = "";
+      rooms.forEach((room) => {
+        const li = document.createElement("li");
+        li.textContent = (room.label || "(unnamed room)") + " -- " + room.points.length + " points";
+        list.appendChild(li);
+      });
+    }
+
+    function setStatus(message) {
+      document.getElementById("status").textContent = message || "";
+    }
+
+    function submitRooms() {
+      if (currentPoints.length >= 3) {
+        closeRoom();
+      }
+      if (rooms.length === 0) {
+        setStatus("Trace at least one room before submitting.");
+        return;
+      }
+
+      const csrftoken = document.querySelector("#csrf-form input[name=csrfmiddlewaretoken]").value;
+
+      fetch(window.location.href, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken,
+        },
+        body: JSON.stringify({ rooms: rooms }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.redirect) {
+            if (data.warnings && data.warnings.length) {
+              alert("Some rooms were skipped:\n" + data.warnings.join("\n"));
+            }
+            window.location.href = data.redirect;
+          } else {
+            setStatus(data.error || "Something went wrong.");
+          }
+        })
+        .catch(() => setStatus("Network error submitting rooms."));
+    }
+  </script>
+</body>
+</html>
