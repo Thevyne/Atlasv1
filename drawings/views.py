@@ -194,7 +194,7 @@ If the user asks about their specific drawing project, use the context provided.
         from google import genai
         from google.genai import types
 
-        client = genai.Client(api_key=GOOGLE_API_KEY)
+        client = genai.Client()
         contents = _history_to_gemini_contents(history[-20:]) + [
             {"role": "user", "parts": [{"text": message}]}
         ]
