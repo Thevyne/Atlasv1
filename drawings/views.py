@@ -235,7 +235,7 @@ logger = logging.getLogger(__name__)
 # Get a key from https://aistudio.google.com/app/apikey and paste it
 # between the quotes below. This applies to both chat_api_view above and
 # atlas_api_view below.
-GOOGLE_API_KEY = "AQ.Ab8RN6Ie3zJUAT4prfba3W_uuOSrrc5v7rn9mzFwZVBnhJaRag"
+
 GOOGLE_MODEL   = "gemini-2.5-flash"
 
 
