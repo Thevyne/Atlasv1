@@ -237,6 +237,7 @@ logger = logging.getLogger(__name__)
 # atlas_api_view below.
 
 GOOGLE_MODEL   = "gemini-2.5-flash"
+GOOGLE_API_KEY = "AQ.Ab8RN6KMR-ZglMnqR9rvpdtKEgIiXtaJP-R1R8qIJtZ_QDb41g"
 
 
 def _history_to_gemini_contents(history):
