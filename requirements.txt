@@ -95,3 +95,4 @@ vine==5.1.0
 wcwidth==0.8.1
 websockets==16.0
 xmltodict==1.0.4
+gunicorn
